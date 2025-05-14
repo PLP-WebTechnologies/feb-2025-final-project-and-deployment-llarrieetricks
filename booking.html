@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book a Ticket - Bus Booking System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: url('pic.jpg') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    header {
+      background-color: #778899cc;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      background-color: #444a;
+      padding: 10px;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      padding: 20px;
+    }
+
+    #booking-form {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 5px;
+      max-width: 800px;
+      margin: 0 auto;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    label, h2 {
+      margin-top: 10px;
+      display: block;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    #seats-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .seat-row {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .side {
+      display: flex;
+      gap: 10px;
+    }
+
+    .seat {
+      width: 40px;
+      height: 40px;
+      background-color: #eee;
+      border: 1px solid #ccc;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 5px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .seat.selected {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .seat.occupied {
+      background-color: #999;
+      cursor: not-allowed;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #confirmation-message {
+      background-color: #d4edda;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 5px;
+    }
+
+    footer {
+      text-align: center;
+      background-color: #778899cc;
+      color: white;
+      padding: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Book Your Ticket</h1>
+  <nav>
+    <a href="homepage.html">Home</a>
+    <a href="routes.html">Routes</a>
+    <a href="booking.html">Book Ticket</a>
+    <a href="contact.html">Contact Us</a>
+  </nav>
+</header>
+
+<main>
+  <section id="booking-form">
+    <h2>Select Your Route</h2>
+    <form id="book-ticket-form">
+      <label for="route">Choose Route:</label>
+      <select id="route" required>
+        <option value="">Select a route</option>
+      </select>
+
+      <h2>Select Your Seats</h2>
+      <div id="seats-container"></div>
+
+      <h2>Enter Your Details</h2>
+      <label for="phone">Phone Number:</label>
+      <input type="tel" id="phone" name="phone" required placeholder="e.g. +1234567890" />
+
+      <h2>Payment Method</h2>
+      <label for="payment">Choose Payment Option:</label>
+      <select id="payment" name="payment" required>
+        <option value="">Select a payment method</option>
+        <option value="credit">Credit Card</option>
+        <option value="mobile">Mobile Money</option>
+        <option value="paypal">PayPal</option>
+      </select>
+
+      <button type="submit">Book Ticket</button>
+    </form>
+  </section>
+
+  <section id="confirmation-message" style="display: none;"></section>
+</main>
+
+<footer>
+  <p>&copy; 2025 Bus Booking System</p>
+</footer>
+
+<script>
+  const busRoutes = [
+    { route_id: 1, departure: 'Nairobi', destination: 'Kisumu', departure_time: '10:00 AM' },
+    { route_id: 2, departure: 'Nairobi', destination: 'Kisii', departure_time: '12:00 PM' },
+    { route_id: 3, departure: 'Nairobi', destination: 'Moyale', departure_time: '2:00 PM' }
+  ];
+
+  const routeSelect = document.getElementById('route');
+  busRoutes.forEach(route => {
+    const option = document.createElement('option');
+    option.value = route.route_id;
+    option.textContent = `${route.departure} to ${route.destination}`;
+    routeSelect.appendChild(option);
+  });
+
+  const seatsContainer = document.getElementById('seats-container');
+  const selectedSeats = new Set();
+  const totalSeats = 60;
+
+  let seatNumber = 1;
+  for (let row = 1; row <= 15; row++) {
+    const seatRow = document.createElement('div');
+    seatRow.className = 'seat-row';
+
+    const leftSide = document.createElement('div');
+    leftSide.className = 'side';
+    const rightSide = document.createElement('div');
+    rightSide.className = 'side';
+
+    for (let i = 0; i < 2; i++) {
+      const seat = createSeat(seatNumber++);
+      leftSide.appendChild(seat);
+    }
+
+    for (let i = 0; i < 2; i++) {
+      const seat = createSeat(seatNumber++);
+      rightSide.appendChild(seat);
+    }
+
+    seatRow.appendChild(leftSide);
+    seatRow.appendChild(rightSide);
+    seatsContainer.appendChild(seatRow);
+  }
+
+  function createSeat(number) {
+    const seat = document.createElement('div');
+    seat.className = 'seat';
+    seat.textContent = number;
+    seat.dataset.seatNumber = number;
+
+    seat.addEventListener('click', () => {
+      if (seat.classList.contains('occupied')) return;
+      seat.classList.toggle('selected');
+      const seatNum = seat.dataset.seatNumber;
+      selectedSeats.has(seatNum) ? selectedSeats.delete(seatNum) : selectedSeats.add(seatNum);
+    });
+
+    return seat;
+  }
+
+  document.getElementById('book-ticket-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const routeId = document.getElementById('route').value;
+    const phone = document.getElementById('phone').value.trim();
+    const paymentMethod = document.getElementById('payment').value;
+
+    if (!routeId || !phone || !paymentMethod) {
+      alert('Please complete all required fields.');
+      return;
+    }
+
+    if (selectedSeats.size === 0) {
+      alert('Please select at least one seat.');
+      return;
+    }
+
+    const route = busRoutes.find(r => r.route_id == routeId);
+    const confirmation = document.getElementById('confirmation-message');
+
+    const smsMessage = `Hello! Your booking from ${route.departure} to ${route.destination} at ${route.departure_time} for seat(s) ${Array.from(selectedSeats).join(', ')} is confirmed.`;
+
+    confirmation.style.display = 'block';
+    confirmation.innerHTML = `
+      <h3>Booking Confirmed!</h3>
+      <p><strong>Route:</strong> ${route.departure} to ${route.destination}</p>
+      <p><strong>Time:</strong> ${route.departure_time}</p>
+      <p><strong>Seats Booked:</strong> ${Array.from(selectedSeats).join(', ')}</p>
+      <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+      <p><strong>SMS Sent To:</strong> ${phone}</p>
+      <p><em>Message:</em> "${smsMessage}"</p>
+    `;
+
+    // Reset form and seat selection
+    selectedSeats.clear();
+    document.querySelectorAll('.seat.selected').forEach(seat => seat.classList.remove('selected'));
+    document.getElementById('book-ticket-form').reset();
+  });
+</script>
+
+</body>
+</html>
